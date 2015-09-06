@@ -1,32 +1,25 @@
 package br.com.jortec.controledeviagem;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class LoginActivity extends AppCompatActivity {
-    private EditText usuario ;
-    private EditText senha;
+public class DashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        usuario = (EditText) findViewById(R.id.edtUsuario);
-        senha   = (EditText) findViewById(R.id.edtSenha);
-
+        setContentView(R.layout.activity_dashboard);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_dashboard, menu);
         return true;
     }
 
@@ -45,18 +38,12 @@ public class LoginActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onClickLogar(View view) {
-        String usuarioInformado = usuario.getText().toString();
-        String senhaInformado = senha.getText().toString();
+    public void selecionarOpcao(View view) {
 
-        if("jorliano".equals(usuarioInformado) && "leandro".equals(senhaInformado)){
+        TextView t = (TextView) view;
 
-            startActivity(new Intent(this,DashboardActivity.class));
-        }
-        else {
-            String msgErro = getString(R.string.erroAutenticacao);
-            Toast toast = Toast.makeText(this,msgErro,Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        String msgErro = t.getText().toString();
+        Toast toast = Toast.makeText(this,msgErro,Toast.LENGTH_LONG);
+        toast.show();
     }
 }
