@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f3333333"
+    android:orientation="vertical"
+    tools:context="br.com.jortec.controledeviagem.DashboardActivity">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/controle_gastos"
+        android:id="@+id/textView"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#015488">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/novo_gasto"
+            android:id="@+id/novo_gasto"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="80dp"
+            android:clickable="true"
+            android:onClick="selecionarOpcao"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nova_viagem"
+            android:id="@+id/nova_viagem"
+            android:clickable="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignLeft="@+id/novo_gasto"
+            android:layout_alignStart="@+id/novo_gasto"
+            android:layout_marginBottom="102dp"
+            android:onClick="selecionarOpcao"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/minhas_viagem"
+            android:id="@+id/textView2"
+            android:clickable="true"
+            android:onClick="selecionarOpcao"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_alignTop="@+id/novo_gasto"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="57dp"
+            android:layout_marginEnd="57dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/minhas_configuracoes"
+            android:id="@+id/textView3"
+            android:layout_alignTop="@+id/nova_viagem"
+            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignStart="@+id/textView2"
+            android:clickable="true"
+            android:onClick="selecionarOpcao"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</LinearLayout>
