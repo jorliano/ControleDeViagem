@@ -1,10 +1,12 @@
 package br.com.jortec.controledeviagem;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,10 +42,24 @@ public class DashboardActivity extends AppCompatActivity {
 
     public void selecionarOpcao(View view) {
 
-        TextView t = (TextView) view;
+        TextView opcao = (TextView) view;
+        String op = opcao.getText().toString();
+       startActivity(new Intent(this,GastoViagemActivity.class));
 
-        String msgErro = t.getText().toString();
-        Toast toast = Toast.makeText(this,msgErro,Toast.LENGTH_LONG);
-        toast.show();
+       if("novo_vigem".equals(op)){
+           startActivity(new Intent(this,CadastroViagemActivity.class));
+        }
+        else
+           if("novo_gasto".equals(op)){
+                startActivity(new Intent(this,GastoViagemActivity.class));
+            }
+            else
+                if("minhas_viagem".equals(op)){
+                    startActivity(new Intent(this,CadastroViagemActivity.class));
+                }
+                else {
+
+                }
+
     }
 }

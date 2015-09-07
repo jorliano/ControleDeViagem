@@ -1,0 +1,131 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="br.com.jortec.controledeviagem.CadastroViagemActivity"
+    android:fillViewport="false"  >
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="0,1,3">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="#015488">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/nova_viagem"
+                android:id="@+id/textView"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/destino"
+            android:id="@+id/textView4" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/edtDestino" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/tipo_da_viagem"
+            android:id="@+id/textView5" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lazer"
+                android:id="@+id/rbtnLazer"
+                android:checked="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/negocio"
+                android:id="@+id/rbtnNegocio"
+                android:checked="false"
+                android:layout_weight="1" />
+        </RadioGroup>
+
+        <TableRow android:layout_marginTop="10dp">
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/txtDataPartida"
+                android:text="@string/data_chegada" />
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/txtDataChegada"
+                android:text="@string/data_de_saida" />
+        </TableRow>
+        <TableRow>
+            <Button
+                android:id="@+id/btnDataPartida"
+                android:text="@string/selecione" />
+            <Button
+                android:id="@+id/btnDataChegada"
+                android:text="@string/selecione" />
+        </TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/orcamento"
+            android:id="@+id/textView6" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/edtOrcamento"
+            android:inputType="numberDecimal" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/quantidade_de_pessoas"
+                android:id="@+id/textView7" />
+
+            <EditText
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/editText"
+                android:layout_gravity="left|right" />
+        </TableRow>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/criar_nova_viagem"
+            android:id="@+id/button" />
+    </TableLayout>
+</ScrollView>
