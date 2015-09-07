@@ -20,6 +20,26 @@
             android:name=".DashboardActivity"
             android:label="@string/title_activity_dashboard" >
         </activity>
+        <activity
+            android:name=".CadastroViagemActivity"
+            android:label="@string/title_activity_cadastro_viagem" >
+        </activity>
+        <activity
+            android:name=".GastoViagemActivity"
+            android:label="@string/title_activity_gasto_viagem" >
+        </activity>
+        <activity
+            android:name=".MinhasViagensActivity"
+            android:label="@string/title_activity_minhas_viagens" >
+        </activity>
+        <activity
+            android:name=".GastoListaActivity"
+            android:label="@string/title_activity_gasto_lista" >
+        </activity>
+        <activity
+            android:name=".ConfiguracoesActivity"
+            android:label="Preferencias">
+        </activity>
     </application>
 
 </manifest>

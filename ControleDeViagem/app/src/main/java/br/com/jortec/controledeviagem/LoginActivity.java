@@ -1,17 +1,21 @@
 package br.com.jortec.controledeviagem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
+    public final String MANTER_ME_CONECTADO = "manter_conectado";
     private EditText usuario ;
     private EditText senha;
+    private CheckBox manterConectado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +24,13 @@ public class LoginActivity extends AppCompatActivity {
 
         usuario = (EditText) findViewById(R.id.edtUsuario);
         senha   = (EditText) findViewById(R.id.edtSenha);
+        manterConectado =(CheckBox) findViewById(R.id.ckbConectado);
+
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        boolean conectado = sharedPreferences.getBoolean(MANTER_ME_CONECTADO,false);
+
+        if(conectado)
+            startActivity(new Intent(this,DashboardActivity.class));
 
     }
 
@@ -50,6 +61,11 @@ public class LoginActivity extends AppCompatActivity {
         String senhaInformado = senha.getText().toString();
 
         if("jorliano".equals(usuarioInformado) && "leandro".equals(senhaInformado)){
+
+            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(MANTER_ME_CONECTADO,manterConectado.isChecked());
+            editor.commit();
 
             startActivity(new Intent(this,DashboardActivity.class));
         }

@@ -1,26 +1,43 @@
 package br.com.jortec.controledeviagem;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
-public class DashboardActivity extends AppCompatActivity {
+public class GastoViagemActivity extends AppCompatActivity {
+
+    private Spinner spnTipoGasto;
+    private EditText edtValor;
+    private EditText edtDescricao;
+    private EditText edtLocal;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_gasto_viagem);
+
+        spnTipoGasto = (Spinner) findViewById(R.id.spnTipoGasto);
+
+
+
+        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this,R.array.categoria_gasto,
+                android.R.layout.simple_spinner_dropdown_item);
+
+        spnTipoGasto.setAdapter(arrayAdapter);
+
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_dashboard, menu);
+        getMenuInflater().inflate(R.menu.menu_gasto_viagem, menu);
         return true;
     }
 
@@ -37,23 +54,5 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void selecionarOpcao(View view) {
-
-        switch (view.getId()){
-            case R.id.nova_viagem:
-                startActivity(new Intent(this,CadastroViagemActivity.class));
-                break;
-            case R.id.novo_gasto:
-                startActivity(new Intent(this,GastoViagemActivity.class));
-                break;
-            case R.id.minhas_viagens:
-                startActivity(new Intent(this,MinhasViagensActivity.class));
-                break;
-            case R.id.configuracao:
-                startActivity(new Intent(this,ConfiguracoesActivity.class));
-                break;
-        }
     }
 }
