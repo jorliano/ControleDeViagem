@@ -28,6 +28,14 @@
             android:name=".GastoViagemActivity"
             android:label="@string/title_activity_gasto_viagem" >
         </activity>
+        <activity
+            android:name=".MinhasViagensActivity"
+            android:label="@string/title_activity_minhas_viagens" >
+        </activity>
+        <activity
+            android:name=".GastoListaActivity"
+            android:label="@string/title_activity_gasto_lista" >
+        </activity>
     </application>
 
 </manifest>

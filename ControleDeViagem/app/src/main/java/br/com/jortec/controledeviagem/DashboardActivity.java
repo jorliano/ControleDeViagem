@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,21 +43,26 @@ public class DashboardActivity extends AppCompatActivity {
 
         TextView opcao = (TextView) view;
         String op = opcao.getText().toString();
-       startActivity(new Intent(this,GastoViagemActivity.class));
 
-       if("novo_vigem".equals(op)){
+        String viagem = getString(R.string.nova_viagem);
+        String gasto = getString(R.string.novo_gasto);
+        String minhas_viagem = getString(R.string.minhas_viagens);
+
+
+       if(viagem.equals(op)){
            startActivity(new Intent(this,CadastroViagemActivity.class));
         }
         else
-           if("novo_gasto".equals(op)){
+           if(gasto.equals(op)){
                 startActivity(new Intent(this,GastoViagemActivity.class));
             }
             else
-                if("minhas_viagem".equals(op)){
-                    startActivity(new Intent(this,CadastroViagemActivity.class));
+                if(minhas_viagem.equals(op)){
+                    startActivity(new Intent(this,MinhasViagensActivity.class));
                 }
                 else {
-
+                    Toast toast = Toast.makeText(this,"Selecionado "+op,Toast.LENGTH_SHORT);
+                    toast.show();
                 }
 
     }

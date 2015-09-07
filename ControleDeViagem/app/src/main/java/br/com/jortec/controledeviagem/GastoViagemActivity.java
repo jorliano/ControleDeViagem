@@ -4,13 +4,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
 public class GastoViagemActivity extends AppCompatActivity {
+
+    private Spinner spnTipoGasto;
+    private EditText edtValor;
+    private EditText edtDescricao;
+    private EditText edtLocal;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gasto_viagem);
+
+        spnTipoGasto = (Spinner) findViewById(R.id.spnTipoGasto);
+
+
+
+        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this,R.array.categoria_gasto,
+                android.R.layout.simple_spinner_dropdown_item);
+
+        spnTipoGasto.setAdapter(arrayAdapter);
+
+
     }
 
     @Override
