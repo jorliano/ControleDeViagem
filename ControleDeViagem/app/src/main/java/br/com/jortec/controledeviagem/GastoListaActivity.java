@@ -4,8 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,16 +25,15 @@ public class GastoListaActivity extends AppCompatActivity {
 
         listaGastos = (ListView) findViewById(R.id.listaGastos);
 
-        String [] de = {"descricao","valor"};
-        int [] para ={android.R.id.text1,android.R.id.text2};
+        String [] de = {"data","descricao","valor"};
+        int [] para ={R.id.txtDataGasto,R.id.txtDescricaoGasto,R.id.txtValorGasto};
 
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listar(),android.R.layout.two_line_list_item,de,para);
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listar(),R.layout.gasto_list,de,para);
+        simpleAdapter.setViewBinder(new GastoViewBinder());
 
         listaGastos.setAdapter(simpleAdapter);
         //listaGastos.setOnItemClickListener(this);
-
-
     }
 
 
@@ -63,20 +64,62 @@ public class GastoListaActivity extends AppCompatActivity {
         listarGastos = new ArrayList<HashMap<String,String>>();
 
         HashMap<String,String> item = new HashMap<String,String>();
-        item.put("descricao","Sanduiche");
+        item.put("data","10/08/2012");
+        item.put("descricao", "Sanduiche");
         item.put("valor","Gasto : R$ 5,00");
+       // item.put("categoria", String.valueOf(R.color.categoria_alimentacao));
         listarGastos.add(item);
 
         item = new HashMap<String,String>();
-        item.put("descricao","Roupa");
+        item.put("data","11/08/2012");
+        item.put("descricao", "Roupa");
         item.put("valor","Gasto : R$ 30,00");
+       // item.put("categoria", String.valueOf(R.color.categoria_hospedagem));
         listarGastos.add(item);
 
         item = new HashMap<String,String>();
-        item.put("descricao","Almoço");
+        item.put("data","12/08/2012");
+        item.put("descricao", "Almoço");
         item.put("valor", "Gasto : R$ 20,00");
+       // item.put("categoria", String.valueOf(R.color.categoria_transporte));
+        listarGastos.add(item);
+
+        item = new HashMap<String,String>();
+        item.put("data","12/08/2012");
+        item.put("descricao", "local");
+        item.put("valor", "Gasto : R$ 20,00");
+       // item.put("categoria", String.valueOf(R.color.categoria_outros));
         listarGastos.add(item);
 
       return listarGastos;
+    }
+
+    public class GastoViewBinder implements SimpleAdapter.ViewBinder{
+        private String dataAnterior ="";
+
+        @Override
+        public boolean setViewValue(View view, Object data, String textRepresentation) {
+
+            if(view.getId() == R.id.txtDataGasto) {
+                if (!dataAnterior.equals(data)) {
+                    TextView textView = (TextView) view;
+                    textView.setText(textRepresentation);
+                    dataAnterior = textRepresentation;
+                    view.setVisibility(View.VISIBLE);
+
+                } else {
+                    view.setVisibility(View.GONE);
+                }
+                return true;
+            }
+
+           /* if(view.getId() == R.id.lytCategoria){
+                Integer id = (Integer) data;
+                view.setBackgroundColor(getResources().getColor(id));
+                return true;
+            }*/
+
+          return false;
+        }
     }
 }

@@ -44,8 +44,15 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_gasto_lista">GastoListaActivity</string>
-
-
+    <string name="sair">Sair</string>
+    <string name="action_deletar">Deletar</string>
+    <string name="editar">Editar</string>
+    <string name="gastos_realizados">Gastos Realizados</string>
+    <string name="deletar">Deletar</string>
+    <string name="opcoes">Opções</string>
+    <string name="confirmacao_exclusao_viagem">Tem certa que quer excluir ?</string>
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
 
 
 </resources>
