@@ -40,6 +40,12 @@
             android:layout_height="wrap_content"
             android:text="@string/valor"
             android:id="@+id/txtValor" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/barraProgresso" />
     </LinearLayout>
 
 </LinearLayout>

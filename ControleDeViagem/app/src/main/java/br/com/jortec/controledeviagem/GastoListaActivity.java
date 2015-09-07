@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class GastoListaActivity extends AppCompatActivity {
     private ListView listaGastos;
-    private ArrayList<HashMap<String,String>> listarGastos;
+    private ArrayList<HashMap<String,Object>> listarGastos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +25,8 @@ public class GastoListaActivity extends AppCompatActivity {
 
         listaGastos = (ListView) findViewById(R.id.listaGastos);
 
-        String [] de = {"data","descricao","valor"};
-        int [] para ={R.id.txtDataGasto,R.id.txtDescricaoGasto,R.id.txtValorGasto};
+        String [] de = {"data","descricao","valor","categoria"};
+        int [] para ={R.id.txtDataGasto,R.id.txtDescricaoGasto,R.id.txtValorGasto,R.id.lytCategoria};
 
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this,listar(),R.layout.gasto_list,de,para);
@@ -60,35 +60,35 @@ public class GastoListaActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private ArrayList<HashMap<String,String>> listar() {
-        listarGastos = new ArrayList<HashMap<String,String>>();
+    private ArrayList<HashMap<String,Object>> listar() {
+        listarGastos = new ArrayList<HashMap<String,Object>>();
 
-        HashMap<String,String> item = new HashMap<String,String>();
+        HashMap<String,Object> item = new HashMap<String,Object>();
         item.put("data","10/08/2012");
         item.put("descricao", "Sanduiche");
         item.put("valor","Gasto : R$ 5,00");
-       // item.put("categoria", String.valueOf(R.color.categoria_alimentacao));
+       item.put("categoria", (R.color.categoria_alimentacao));
         listarGastos.add(item);
 
-        item = new HashMap<String,String>();
+        item = new HashMap<String,Object>();
         item.put("data","11/08/2012");
         item.put("descricao", "Roupa");
         item.put("valor","Gasto : R$ 30,00");
-       // item.put("categoria", String.valueOf(R.color.categoria_hospedagem));
+        item.put("categoria", (R.color.categoria_hospedagem));
         listarGastos.add(item);
 
-        item = new HashMap<String,String>();
+        item = new HashMap<String,Object>();
         item.put("data","12/08/2012");
         item.put("descricao", "Almoço");
         item.put("valor", "Gasto : R$ 20,00");
-       // item.put("categoria", String.valueOf(R.color.categoria_transporte));
+        item.put("categoria", (R.color.categoria_transporte));
         listarGastos.add(item);
 
-        item = new HashMap<String,String>();
+        item = new HashMap<String,Object>();
         item.put("data","12/08/2012");
         item.put("descricao", "local");
         item.put("valor", "Gasto : R$ 20,00");
-       // item.put("categoria", String.valueOf(R.color.categoria_outros));
+        item.put("categoria", (R.color.categoria_outros));
         listarGastos.add(item);
 
       return listarGastos;
@@ -113,11 +113,11 @@ public class GastoListaActivity extends AppCompatActivity {
                 return true;
             }
 
-           /* if(view.getId() == R.id.lytCategoria){
+           if(view.getId() == R.id.lytCategoria){
                 Integer id = (Integer) data;
                 view.setBackgroundColor(getResources().getColor(id));
                 return true;
-            }*/
+            }
 
           return false;
         }

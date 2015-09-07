@@ -41,29 +41,19 @@ public class DashboardActivity extends AppCompatActivity {
 
     public void selecionarOpcao(View view) {
 
-        TextView opcao = (TextView) view;
-        String op = opcao.getText().toString();
-
-        String viagem = getString(R.string.nova_viagem);
-        String gasto = getString(R.string.novo_gasto);
-        String minhas_viagem = getString(R.string.minhas_viagens);
-
-
-       if(viagem.equals(op)){
-           startActivity(new Intent(this,CadastroViagemActivity.class));
-        }
-        else
-           if(gasto.equals(op)){
+        switch (view.getId()){
+            case R.id.nova_viagem:
+                startActivity(new Intent(this,CadastroViagemActivity.class));
+                break;
+            case R.id.novo_gasto:
                 startActivity(new Intent(this,GastoViagemActivity.class));
-            }
-            else
-                if(minhas_viagem.equals(op)){
-                    startActivity(new Intent(this,MinhasViagensActivity.class));
-                }
-                else {
-                    Toast toast = Toast.makeText(this,"Selecionado "+op,Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-
+                break;
+            case R.id.minhas_viagens:
+                startActivity(new Intent(this,MinhasViagensActivity.class));
+                break;
+            case R.id.configuracao:
+                startActivity(new Intent(this,ConfiguracoesActivity.class));
+                break;
+        }
     }
 }

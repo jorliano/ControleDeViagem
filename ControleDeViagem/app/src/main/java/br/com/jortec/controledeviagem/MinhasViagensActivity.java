@@ -10,17 +10,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MinhasViagensActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,DialogInterface.OnClickListener {
+public class MinhasViagensActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+                                                                        DialogInterface.OnClickListener {
 
     private ListView listaViagens;
-    private ArrayList<HashMap<String,String>> viagens;
+    private ArrayList<HashMap<String,Object>> viagens;
     private AlertDialog alertDialog;
     private AlertDialog confirmDialog;
 
@@ -32,11 +35,12 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
 
         listaViagens = (ListView) findViewById(R.id.listaViagens);
 
-        String [] de = {"destino","data","valor"};
-        int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor};
+        String [] de = {"destino","data","valor","barraProgresso"};
+        int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
 
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this,listarViagem(),R.layout.viagem_lists,de,para);
+        simpleAdapter.setViewBinder(new ViagemViewBinder());
 
         listaViagens.setAdapter(simpleAdapter);
         listaViagens.setOnItemClickListener(this);
@@ -67,20 +71,22 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
     }
 
     //Popullar a minha lista
-     private List<HashMap<String, String>> listarViagem(){
+     private List<HashMap<String, Object>> listarViagem(){
 
-        viagens = new ArrayList<HashMap<String,String>>();
+        viagens = new ArrayList<HashMap<String,Object>>();
 
-        HashMap<String,String> item = new HashMap<String,String>();
+        HashMap<String,Object> item = new HashMap<String,Object>();
          item.put("destino","Fortaleza");
          item.put("data","10/10/10");
          item.put("valor", "300,00");
+         item.put("barraProgresso",  new Double[]{500.0,450.0,314.98});
          viagens.add(item);
 
-        item = new HashMap<String, String>();
+        item = new HashMap<String, Object>();
          item.put("destino", "Maceió");
          item.put("data","10/10/10");
-         item.put("valor", "Gasto total R$ 25834,67");
+         item.put("valor", "Gasto total R$ 25.834,67");
+         item.put("barraProgresso",  new Double[]{500.0,450.0,314.98});
          viagens.add(item);
 
 
@@ -148,6 +154,26 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
             case DialogInterface.BUTTON_NEGATIVE:
                 Toast.makeText(this,"Item cancelado", Toast.LENGTH_SHORT).show();
                 break;
+        }
+    }
+
+    public class ViagemViewBinder implements SimpleAdapter.ViewBinder{
+
+        @Override
+        public boolean setViewValue(View view, Object data, String textRepresentation) {
+
+            if(view.getId() == R.id.barraProgresso) {
+
+                Double valores[] = (Double[]) data;
+                ProgressBar progressoBar = (ProgressBar) view;
+                progressoBar.setMax(valores[0].intValue());
+                progressoBar.setSecondaryProgress(valores[1].intValue());
+                progressoBar.setProgress(valores[2].intValue());
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

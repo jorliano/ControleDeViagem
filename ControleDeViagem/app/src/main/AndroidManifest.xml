@@ -36,6 +36,10 @@
             android:name=".GastoListaActivity"
             android:label="@string/title_activity_gasto_lista" >
         </activity>
+        <activity
+            android:name=".ConfiguracoesActivity"
+            android:label="Preferencias">
+        </activity>
     </application>
 
 </manifest>
