@@ -50,7 +50,8 @@
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/radioGoup">
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -118,7 +119,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:id="@+id/editText"
+                android:id="@+id/edtPessoas"
                 android:layout_gravity="left|right" />
         </TableRow>
 
@@ -126,6 +127,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/criar_nova_viagem"
-            android:id="@+id/button" />
+            android:id="@+id/btnSalvarViagem" />
     </TableLayout>
 </ScrollView>
