@@ -9,7 +9,7 @@ public class Viagem {
 
     public static String TABELA ="viagem";
 
-    public static String ID="_id";
+    public static String ID ="_id";
     public static String DESTINO ="destino";
     public static String TIPO ="tipo";
     public static String ORCAMENTO ="orcamento";
@@ -20,7 +20,7 @@ public class Viagem {
 
 
 
-    private long _id;
+    private int _id;
     private String destino;
     private int tipo;
     private double orcamento;
@@ -29,11 +29,11 @@ public class Viagem {
     private Date data_partida;
 
 
-    public long getId() {
+    public int getId() {
         return _id;
     }
 
-    public void setId(long _id) {
+    public void setId(int _id) {
         this._id = _id;
     }
 

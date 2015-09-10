@@ -3,6 +3,7 @@ package br.com.jortec.controledeviagem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import br.com.jortec.controledeviagem.database.DatabaseSql;
+import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
+import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
+
 public class MinhasViagensActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
                                                                         DialogInterface.OnClickListener {
 
@@ -28,23 +33,48 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
     private AlertDialog confirmDialog;
 
 
+    private SQLiteDatabase conexao;
+    private ViagemDao dao;
+    private DatabaseSql db;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_minhas_viagens);
 
+
+        try {
+
+            db = new DatabaseSql(this);
+            conexao = db.getWritableDatabase();
+            dao = new ViagemDao(conexao);
+
+        }catch (Exception ex){
+            Toast.makeText(this,"erro ao se conectar"+ex,Toast.LENGTH_LONG).show();
+        }
+
+
         listaViagens = (ListView) findViewById(R.id.listaViagens);
 
-        String [] de = {"destino","data","valor","barraProgresso"};
-        int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
+       // String [] de = {"destino","data","total","barraProgresso"};
+       // int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
+
+         String [] de = {"destino","data","valor"};
+         int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValorGasto};
 
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listarViagem(),R.layout.viagem_lists,de,para);
-        simpleAdapter.setViewBinder(new ViagemViewBinder());
+        SimpleAdapter simpleAdapter = dao.listarViagem(this,R.layout.viagem_lists,de,para);
+        //simpleAdapter.setViewBinder(new ViagemViewBinder());
 
         listaViagens.setAdapter(simpleAdapter);
         listaViagens.setOnItemClickListener(this);
         this.confirmDialog = criaDialogConfirmacao();
+
+
+
+
+
 
     }
 
@@ -70,7 +100,7 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
         return super.onOptionsItemSelected(item);
     }
 
-    //Popullar a minha lista
+  /*  //Popullar a minha lista
      private List<HashMap<String, Object>> listarViagem(){
 
         viagens = new ArrayList<HashMap<String,Object>>();
@@ -93,7 +123,7 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
 
         return viagens;
     }
-
+*/
 
     private AlertDialog criaAlertDialog() {
         final CharSequence[] items = { getString(R.string.editar),
@@ -162,7 +192,7 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
         @Override
         public boolean setViewValue(View view, Object data, String textRepresentation) {
 
-            if(view.getId() == R.id.barraProgresso) {
+          /*  if(view.getId() == R.id.barraProgresso) {
 
                 Double valores[] = (Double[]) data;
                 ProgressBar progressoBar = (ProgressBar) view;
@@ -171,7 +201,7 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
                 progressoBar.setProgress(valores[2].intValue());
 
                 return true;
-            }
+            }*/
 
             return false;
         }

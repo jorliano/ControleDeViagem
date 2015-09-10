@@ -6,7 +6,21 @@ import java.util.Date;
  * Created by Jorliano on 07/09/2015.
  */
 public class Gasto {
-    private long _id;
+
+    public static String TABELA = "gasto";
+
+    public static String ID = "_id";
+    public static String CATEGORIA = "categoria";
+    public static String VALOR = "valor";
+    public static String DATA = "data";
+    public static String DESCRICAO = "descricao";
+    public static String LOCAL = "local";
+    public static String VIAGEM_ID ="viagem_id";
+
+
+
+    private int _id;
+    private int viagem_id;
     private String categoria;
     private double valor;
     private Date data;
@@ -14,11 +28,19 @@ public class Gasto {
     private String local;
 
 
-    public long get_id() {
+    public int getViagem_id() {
+        return viagem_id;
+    }
+
+    public void setViagem_id(int viagem_id) {
+        this.viagem_id = viagem_id;
+    }
+
+    public int get_id() {
         return _id;
     }
 
-    public void set_id(long _id) {
+    public void set_id(int _id) {
         this._id = _id;
     }
 

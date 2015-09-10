@@ -116,8 +116,8 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
                 b.setMessage(ex.getMessage());
                 b.show();
             }
-            //Toast.makeText(this,"Dados salvos",Toast.LENGTH_SHORT).show();
-            //startActivity(new Intent(this,DashboardActivity.class));
+            Toast.makeText(this,"Dados salvos",Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this,DashboardActivity.class));
         }
     }
 
@@ -143,8 +143,8 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         viagem.setDestino(destino.getText().toString());
         viagem.setOrcamento(Double.parseDouble(orcamento.getText().toString()));
         viagem.setQuantidade_pessoas(Integer.parseInt(quantidadePessoas.getText().toString()));
-       // viagem.setData_partida(stringFormatParaData(btnDataPartida.getText().toString()));
-       // viagem.setData_chegada(stringFormatParaData(btnDataChegada.getText().toString()));
+        viagem.setData_partida(stringFormatParaData(btnDataPartida.getText().toString()));
+        viagem.setData_chegada(stringFormatParaData(btnDataChegada.getText().toString()));
         if(tipo == R.id.rbtnLazer)
             viagem.setTipo(1);
         else
