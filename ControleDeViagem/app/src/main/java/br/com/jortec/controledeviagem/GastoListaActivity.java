@@ -1,27 +1,45 @@
 package br.com.jortec.controledeviagem;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class GastoListaActivity extends AppCompatActivity {
+import br.com.jortec.controledeviagem.dominio.Dao.GastoDao;
+import br.com.jortec.controledeviagem.dominio.entidade.Gasto;
+
+public class GastoListaActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+                                                                     Dialog.OnClickListener{
     private ListView listaGastos;
     private ArrayList<HashMap<String,Object>> listarGastos;
+    private AlertDialog alertaDialog;
+    private AlertDialog comfirmDialog;
+    public static final String ID_GASTO ="id";
+    Gasto gasto;
+    GastoDao dao;
+
+    int viagem_id;
+    int idGasto;
+    int gastoSelecionado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gasto_lista);
+
+        dao = new GastoDao(this);
 
         listaGastos = (ListView) findViewById(R.id.listaGastos);
 
@@ -29,11 +47,20 @@ public class GastoListaActivity extends AppCompatActivity {
         int [] para ={R.id.txtDataGasto,R.id.txtDescricaoGasto,R.id.txtValorGasto,R.id.lytCategoria};
 
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listar(),R.layout.gasto_list,de,para);
+
+        Bundle bundle = getIntent().getExtras();
+
+        if(bundle != null && bundle.containsKey(MinhasViagensActivity.VIAGEM_ID)){
+            viagem_id = bundle.getInt(MinhasViagensActivity.VIAGEM_ID);
+            listarGastos = dao.listarGasto(this,viagem_id);
+        }
+
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listarGastos,R.layout.gasto_list,de,para);
         simpleAdapter.setViewBinder(new GastoViewBinder());
 
         listaGastos.setAdapter(simpleAdapter);
-        //listaGastos.setOnItemClickListener(this);
+        listaGastos.setOnItemClickListener(this);
+
     }
 
 
@@ -60,62 +87,95 @@ public class GastoListaActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private ArrayList<HashMap<String,Object>> listar() {
-        listarGastos = new ArrayList<HashMap<String,Object>>();
+    public AlertDialog criarDialogo(){
+       final CharSequence[] itens = {"Editar",
+                                     "Deletar",
+                                     "Detalhes"};
+        AlertDialog.Builder alg = new AlertDialog.Builder(this);
+        alg.setTitle(R.string.opcoes);
+        alg.setItems(itens,this);
 
-        HashMap<String,Object> item = new HashMap<String,Object>();
-        item.put("data","10/08/2012");
-        item.put("descricao", "Sanduiche");
-        item.put("valor","Gasto : R$ 5,00");
-       item.put("categoria", (R.color.categoria_alimentacao));
-        listarGastos.add(item);
-
-        item = new HashMap<String,Object>();
-        item.put("data","11/08/2012");
-        item.put("descricao", "Roupa");
-        item.put("valor","Gasto : R$ 30,00");
-        item.put("categoria", (R.color.categoria_hospedagem));
-        listarGastos.add(item);
-
-        item = new HashMap<String,Object>();
-        item.put("data","12/08/2012");
-        item.put("descricao", "Almoço");
-        item.put("valor", "Gasto : R$ 20,00");
-        item.put("categoria", (R.color.categoria_transporte));
-        listarGastos.add(item);
-
-        item = new HashMap<String,Object>();
-        item.put("data","12/08/2012");
-        item.put("descricao", "local");
-        item.put("valor", "Gasto : R$ 20,00");
-        item.put("categoria", (R.color.categoria_outros));
-        listarGastos.add(item);
-
-      return listarGastos;
+        return  alg.create();
     }
+
+    private AlertDialog criarDialogConfirmacao() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.confirmacao_exclusao_gasto);
+        builder.setPositiveButton(getString(R.string.sim), this);
+        builder.setNegativeButton(getString(R.string.nao), this);
+        return builder.create();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+         idGasto = (int) listarGastos.get(position).get("_id");
+         gastoSelecionado = position;
+
+         this.alertaDialog = criarDialogo();
+         this.alertaDialog.show();
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which){
+            case 0://Editar  gasto selecionado
+                Intent itente = new Intent(this,GastoViagemActivity.class);
+                itente.putExtra(ID_GASTO, idGasto);
+                startActivity(itente);
+                break;
+            case 1://Deletar o Gasto selecionado
+                this.comfirmDialog = criarDialogConfirmacao();
+                comfirmDialog.show();
+                break;
+            case DialogInterface.BUTTON_POSITIVE:
+                  listarGastos.remove(gastoSelecionado);
+                  dao.deletarGasto(this, idGasto);
+                  listaGastos.invalidateViews();
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialog.dismiss();
+            case 3:
+                break;
+        }
+    }
+
 
     public class GastoViewBinder implements SimpleAdapter.ViewBinder{
         private String dataAnterior ="";
+        int cont;
 
         @Override
         public boolean setViewValue(View view, Object data, String textRepresentation) {
 
-            if(view.getId() == R.id.txtDataGasto) {
+
+          /*  if(view.getId() == R.id.txtDataGasto) {
+
+
                 if (!dataAnterior.equals(data)) {
+
+
+
                     TextView textView = (TextView) view;
                     textView.setText(textRepresentation);
+
                     dataAnterior = textRepresentation;
                     view.setVisibility(View.VISIBLE);
 
                 } else {
+
                     view.setVisibility(View.GONE);
+                   // view.setVisibility(View.VISIBLE);
                 }
+                //Toast.makeText(view.getContext(),"Metodo chamado "+cont, Toast.LENGTH_SHORT).show();
+
                 return true;
-            }
+            }*/
 
            if(view.getId() == R.id.lytCategoria){
-                Integer id = (Integer) data;
-                view.setBackgroundColor(getResources().getColor(id));
+
+
+              // Toast.makeText(view.getContext(),"Cor chamada "+id, Toast.LENGTH_SHORT).show();
+               // view.setBackgroundColor(getResources().getColor(Integer.parseInt(id)));
                 return true;
             }
 

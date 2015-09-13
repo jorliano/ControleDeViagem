@@ -15,18 +15,22 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.DataFormatException;
 
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
 import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
+import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 public class CadastroViagemActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -38,11 +42,11 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
     private EditText quantidadePessoas;
     private RadioGroup tipoSelecionado;
     private int tipo;
+    private int id = 0;
 
-    Viagem viagem;
-    SQLiteDatabase conexao;
-    DatabaseSql db;
+
     ViagemDao dao;
+    Viagem viagem;
 
 
     @Override
@@ -50,6 +54,9 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_viagem);
 
+        dao = new ViagemDao(this);
+
+       //Associar valores do meu layout de viagens
         btnDataChegada = (Button) findViewById(R.id.btnDataChegada);
         btnDataPartida = (Button) findViewById(R.id.btnDataPartida);
         btnSalvar = (Button) findViewById(R.id.btnSalvarViagem);
@@ -60,21 +67,22 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
         tipo = tipoSelecionado.getCheckedRadioButtonId();
 
-
+        //Eventos dos componentes
         btnDataChegada.setOnClickListener(this);
         btnDataPartida.setOnClickListener(this);
         btnSalvar.setOnClickListener(this);
 
+        //pega o id da viagem selecionada
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null && bundle.containsKey(MinhasViagensActivity.VIAGEM_ID)){
+            id = bundle.getInt(MinhasViagensActivity.VIAGEM_ID);
+            carregarViagemSelecionada();
 
-
-        try {
-            db = new DatabaseSql(this);
-            conexao = db.getWritableDatabase();
-
-            dao = new ViagemDao(conexao);
-        }catch (Exception ex){
-            Toast.makeText(this,"Erro ao se conectar com o banco "+ex.getMessage(),Toast.LENGTH_LONG).show();
+        }else{
+            viagem = new Viagem();
         }
+
+
 
     }
 
@@ -102,23 +110,26 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-
-        if(v == btnDataChegada)
-            exibirData(btnDataChegada);
-        else if(v == btnDataPartida)
-            exibirData(btnDataPartida);
-        else if(v == btnSalvar){
-            try{
-                preencerDadosViagem();
-                dao.salvarViagem(viagem);
-            }catch (Exception ex){
-                AlertDialog.Builder b = new AlertDialog.Builder(this);
-                b.setMessage(ex.getMessage());
-                b.show();
-            }
-            Toast.makeText(this,"Dados salvos",Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this,DashboardActivity.class));
+        switch (v.getId()){
+            case R.id.btnDataChegada:
+                exibirData(btnDataChegada);
+                break;
+            case R.id.btnDataPartida:
+                exibirData(btnDataPartida);
+                break;
+            case R.id.btnSalvarViagem:
+                if(id == 0) {
+                    preencerDadosViagem();
+                    dao.salvarViagem(this,viagem);
+                    startActivity(new Intent(this,MinhasViagensActivity.class));
+                }else{
+                    preencerDadosViagem();
+                    dao.editarViagem(this,viagem,id);
+                    startActivity(new Intent(this, MinhasViagensActivity.class));
+                }
+                break;
         }
+
     }
 
     public void exibirData(Button btnData){
@@ -131,30 +142,44 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         dpd.show();
     }
 
-    public Date stringFormatParaData(String data) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Date d = formatter.parse(data);
-        return d;
-    }
 
-    public void preencerDadosViagem() throws ParseException {
+    public void preencerDadosViagem()  {
 
-        viagem = new Viagem();
+
         viagem.setDestino(destino.getText().toString());
-        viagem.setOrcamento(Double.parseDouble(orcamento.getText().toString()));
+        viagem.setOrcamento(Formate.MonetarioParaDouble(orcamento.getText().toString()));
         viagem.setQuantidade_pessoas(Integer.parseInt(quantidadePessoas.getText().toString()));
-        viagem.setData_partida(stringFormatParaData(btnDataPartida.getText().toString()));
-        viagem.setData_chegada(stringFormatParaData(btnDataChegada.getText().toString()));
+        viagem.setData_partida(Formate.stringParaData(btnDataPartida.getText().toString()));
+        viagem.setData_chegada(Formate.stringParaData(btnDataChegada.getText().toString()));
         if(tipo == R.id.rbtnLazer)
             viagem.setTipo(1);
         else
             viagem.setTipo(2);
 
+    }
+    public void carregarViagemSelecionada()  {
+
+        viagem = dao.pesquisarPorId(id);
+
+        if(viagem != null){
+
+            btnDataChegada.setText(Formate.dataParaString(viagem.getData_chegada()));
+            btnDataPartida.setText(Formate.dataParaString(viagem.getData_partida()));
+            destino.setText(viagem.getDestino());
+            orcamento.setText(Formate.doubleParaMonetario(viagem.getOrcamento()));
+            quantidadePessoas.setText(String.valueOf(viagem.getQuantidade_pessoas()));
+
+            tipo = viagem.getTipo();
+            if(tipo == 0){
+                tipoSelecionado.check(R.id.rbtnLazer);
+            }else{
+                tipoSelecionado.check(R.id.rbtnNegocio);
+            }
+
+        }
 
 
     }
-
-
 
 
     private class  SeleciionaDataPicker implements DatePickerDialog.OnDateSetListener{
@@ -169,10 +194,9 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             Calendar calendar = Calendar.getInstance();
             calendar.set(year,monthOfYear,dayOfMonth);
-            Date dateTime = calendar.getTime();
+            Date dataSelecionada = calendar.getTime();
 
-            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-            String data = dateFormat.format(dateTime);
+            String data = Formate.dataParaString(dataSelecionada);
 
             btnData.setText(data);
         }

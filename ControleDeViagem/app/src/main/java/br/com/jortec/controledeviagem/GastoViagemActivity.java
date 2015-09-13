@@ -1,5 +1,7 @@
 package br.com.jortec.controledeviagem;
 
+import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,14 +10,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.Dao.GastoDao;
 import br.com.jortec.controledeviagem.dominio.entidade.Gasto;
+import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 public class GastoViagemActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -26,10 +33,10 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
     private Button data;
     private Button btnSalvar;
 
-    SQLiteDatabase conexao;
-    DatabaseSql db;
     GastoDao dao;
     Gasto gasto;
+    int viagem_id;
+    int id_gasto;
 
 
 
@@ -37,6 +44,8 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gasto_viagem);
+
+        dao = new GastoDao(this);
 
         spnTipoGasto = (Spinner) findViewById(R.id.spnTipoGasto);
         valor = (EditText) findViewById(R.id.edtValor);
@@ -54,16 +63,23 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
 
 
         btnSalvar.setOnClickListener(this);
+        data.setOnClickListener(this);
 
 
-        try {
-            db = new DatabaseSql(this);
-            conexao = db.getWritableDatabase();
+        //Pegar conteudo  de outras acticitys
+        Bundle bundle = getIntent().getExtras();
 
-            dao = new GastoDao(conexao);
+        if(bundle != null && bundle.containsKey(MinhasViagensActivity.VIAGEM_ID)){
+            viagem_id = bundle.getInt(MinhasViagensActivity.VIAGEM_ID);
 
-        }catch (Exception ex){
+        }
 
+        if(bundle != null && bundle.containsKey(GastoListaActivity.ID_GASTO)){
+              id_gasto = bundle.getInt(GastoListaActivity.ID_GASTO);
+              carregarGastoSelecionado();
+        }
+        else{
+                gasto = new Gasto();
         }
 
     }
@@ -92,20 +108,81 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        dao.salvarGasto(conexao,gasto);
+        switch (v.getId()){
+            case R.id.btnSalvarGasto:
+                if (id_gasto == 0){
+                    preencherDados(viagem_id);
+                    dao.salvarGasto(this, gasto);
+                }else {
+                    preencherDados(gasto.getViagem_id());
+                    dao.editarGasto(this,gasto,id_gasto);
+                }
+
+                startActivity(new Intent(this, MinhasViagensActivity.class));
+                break;
+            case R.id.btnDataGasto:
+                exibirData(data);
+                break;
+        }
+
+
+    }
+
+    public void exibirData(Button btnData){
+        Calendar calendar = Calendar.getInstance();
+        int ano = calendar.get(Calendar.YEAR);
+        int mes = calendar.get(Calendar.MONTH);
+        int dia = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dpd = new DatePickerDialog(this,new SeleciionaDataPicker(btnData),ano,mes,dia);
+        dpd.show();
+    }
+
+
+
+
+    public void carregarGastoSelecionado(){
+        gasto = dao.pesquisarPorId(id_gasto);
+
+        spnTipoGasto.setSelection(Integer.parseInt(gasto.getCategoria()));
+        valor.setText(Formate.doubleParaMonetario(gasto.getValor()));
+        descricao.setText(gasto.getDescricao());
+        local.setText(gasto.getLocal());
+        data.setText(Formate.dataParaString(gasto.getData()));
+
     }
 
     public Gasto preencherDados(int id){
-        Gasto gasto = new Gasto();
 
         gasto.setCategoria(String.valueOf(spnTipoGasto.getSelectedItemPosition()));
         gasto.setDescricao(descricao.getText().toString());
-        gasto.setValor(Double.parseDouble(valor.getText().toString()));
+        gasto.setValor(Formate.MonetarioParaDouble(valor.getText().toString()));
         gasto.setLocal(local.getText().toString());
         gasto.setData(new Date());
         gasto.setViagem_id(id);
 
-
         return gasto;
     }
+
+    private class  SeleciionaDataPicker implements DatePickerDialog.OnDateSetListener{
+        Button btnData;
+
+        public SeleciionaDataPicker(Button btnData){
+            this.btnData = btnData;
+        }
+
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year,monthOfYear,dayOfMonth);
+            Date dataSelecionada = calendar.getTime();
+
+            String data = Formate.dataParaString(dataSelecionada);
+
+            btnData.setText(data);
+        }
+    }
+
+
 }

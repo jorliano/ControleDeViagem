@@ -59,6 +59,7 @@
     <string name="valor_limite_sumario">Gasto limite da viagem</string>
     <string name="valor_limite">Valor Limite</string>
     <string name="manter_conectado">Manter me conectado</string>
+    <string name="confirmacao_exclusao_gasto">Confirmar exclusão do gasto</string>
 
 
 </resources>

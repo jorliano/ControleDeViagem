@@ -6,15 +6,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.entidade.Gasto;
 import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
+import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 /**
  * Created by Jorliano on 07/09/2015.
@@ -23,26 +26,30 @@ public class ViagemDao {
 
 
     SQLiteDatabase conexao;
+    DatabaseSql db;
     Viagem viagem;
     GastoDao gastoDao;
 
-    public ViagemDao(SQLiteDatabase conexao){
-        this.conexao = conexao;
-        viagem = new Viagem();
+    public ViagemDao(Context context){
 
-        gastoDao = new GastoDao(conexao);
-
+        db = new DatabaseSql(context);
     }
 
-    public SimpleAdapter listarViagem(Context context, int lyout, String[] de,int[] para){
+    public SQLiteDatabase getConexao (){
+        if (conexao ==  null){
+            conexao = db.getWritableDatabase();
+        }
 
-        ArrayList<HashMap<String,Object>> viagemLista = new ArrayList<HashMap<String,Object>>();
+        return conexao;
+    }
 
-        SimpleAdapter adp = new SimpleAdapter(context,viagemLista,lyout,de,para);
+    public ArrayList<HashMap<String, Object>> listarViagem(Context context) {
+
+        ArrayList<HashMap<String, Object>> viagemLista = new ArrayList<HashMap<String, Object>>();
 
 
 
-        Cursor cursor = conexao.query(viagem.TABELA,null,null,null,null,null,null);
+        Cursor cursor = getConexao().query(viagem.TABELA, null, null, null, null, null, null);
 
         cursor.moveToFirst();
 
@@ -59,40 +66,79 @@ public class ViagemDao {
             item.put(viagem.QUANTIDADE_PESSOAS, cursor.getInt(cursor.getColumnIndex(viagem.QUANTIDADE_PESSOAS)));
 
 
+            String data = Formate.dataParaString(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_PARTIDA))))+" a "+
+                          Formate.dataParaString(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_CHEGADA))));
 
+            item.put("data", data);
 
+            Double totalGasto = gastoDao.CalculaValorTotalGasto(getConexao(),cursor.getInt(cursor.getColumnIndex(viagem.ID)));
 
-            String data = formatData( new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_PARTIDA))))+" a "+
-                         formatData( new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_CHEGADA))));
-
-            item.put("data",data);
-
-          /*  Double totalGasto = gastoDao.CalculaValorTotalGasto(cursor.getString(cursor.getColumnIndex(viagem.ID)));
-
-            item.put("total","Total Gasro R$ "+totalGasto);
+            item.put("totalGasto","Total Gasro R$ "+ Formate.doubleParaMonetario(totalGasto));
 
             Double[] valores = new Double[]{cursor.getDouble(cursor.getColumnIndex(viagem.ORCAMENTO)),
-                    300.0,totalGasto};
+                    1500.0,totalGasto};
 
-            item.put("barra",valores);*/
+            item.put("barraProgresso",valores);
 
             viagemLista.add(item);
 
         }
 
-       return  adp;
+       return  viagemLista;
 
 
     }
-    public void salvarViagem(Viagem viagem){
-      conexao.insertOrThrow(Viagem.TABELA,null,preencherDados(viagem));
+    public Viagem pesquisarPorId(int id){
+        Viagem viagem = new Viagem();
+
+        Cursor cursor = getConexao().rawQuery("Select * from viagem where _id = ?",new String[]{String.valueOf(id)});
+
+        cursor.moveToFirst();
+
+        viagem.setId(cursor.getInt(cursor.getColumnIndex(viagem.ID)));
+        viagem.setDestino(cursor.getString(cursor.getColumnIndex(viagem.DESTINO)));
+        viagem.setOrcamento(cursor.getDouble(cursor.getColumnIndex(viagem.ORCAMENTO)));
+        viagem.setTipo(cursor.getInt(cursor.getColumnIndex(viagem.TIPO)));
+        viagem.setData_partida(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_PARTIDA))));
+        viagem.setData_chegada(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_CHEGADA))));
+        viagem.setQuantidade_pessoas(cursor.getInt(cursor.getColumnIndex(viagem.QUANTIDADE_PESSOAS)));
+
+
+        return viagem;
+    }
+
+    public void salvarViagem(Context context ,Viagem viagem){
+        try {
+            getConexao().insert(Viagem.TABELA, null, preencherDados(viagem));
+            Toast.makeText(context, "Dados salvo com sucesso ", Toast.LENGTH_LONG).show();
+        }
+        catch (Exception ex){
+            Toast.makeText(context,"Erro ao salvar "+ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
 
     }
-    public void editarViagem(Viagem viagem){
-      conexao.update(Viagem.TABELA, preencherDados(viagem), "_id =?", new String[]{String.valueOf(viagem.getId())});
+    public void editarViagem(Context context ,Viagem viagem, int id){
+        try {
+            getConexao().update(Viagem.TABELA, preencherDados(viagem), "_id =?", new String[]{String.valueOf(viagem.getId())});
+            Toast.makeText(context, "Dados atualizado com sucesso ", Toast.LENGTH_LONG).show();
+        }
+        catch (Exception ex){
+            Toast.makeText(context,"Erro ao alterar "+ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+
     }
-    public void deletarViagem(long id){
-     conexao.delete(Viagem.TABELA, "_id =?", new String[]{String.valueOf(id)});
+    public void deletarViagem(Context context ,int id){
+        try {
+            String where[] = {String.valueOf(id)};
+
+            getConexao().delete(Gasto.TABELA,"viagem_id = ?", where);
+            getConexao().delete(Viagem.TABELA, "_id =?", where);
+            Toast.makeText(context, "Os dados foram removidos  ", Toast.LENGTH_LONG).show();
+        }
+        catch (Exception ex){
+            Toast.makeText(context,"Erro ao deletar "+ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+
     }
 
     public ContentValues preencherDados(Viagem viagem){
@@ -110,11 +156,5 @@ public class ViagemDao {
         return values;
     }
 
-    public String formatData(Date data){
-        DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
-        String dataFormatada = format.format(data);
-
-        return dataFormatada;
-    }
 
 }
