@@ -75,11 +75,11 @@
             <TextView
                 android:layout_gravity="center"
                 android:id="@+id/txtDataPartida"
-                android:text="@string/data_chegada" />
+                android:text="@string/data_de_saida" />
             <TextView
                 android:layout_gravity="center"
                 android:id="@+id/txtDataChegada"
-                android:text="@string/data_de_saida" />
+                android:text="@string/data_chegada" />
         </TableRow>
         <TableRow>
             <Button

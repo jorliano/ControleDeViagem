@@ -4,7 +4,10 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -124,7 +127,7 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
                     startActivity(new Intent(this,MinhasViagensActivity.class));
                 }else{
                     preencerDadosViagem();
-                    dao.editarViagem(this,viagem,id);
+                    dao.editarViagem(this, viagem, id);
                     startActivity(new Intent(this, MinhasViagensActivity.class));
                 }
                 break;
@@ -144,7 +147,6 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
 
     public void preencerDadosViagem()  {
-
 
         viagem.setDestino(destino.getText().toString());
         viagem.setOrcamento(Formate.MonetarioParaDouble(orcamento.getText().toString()));
@@ -180,7 +182,6 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
 
     }
-
 
     private class  SeleciionaDataPicker implements DatePickerDialog.OnDateSetListener{
         Button btnData;

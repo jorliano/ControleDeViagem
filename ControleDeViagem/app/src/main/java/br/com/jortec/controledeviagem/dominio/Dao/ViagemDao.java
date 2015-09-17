@@ -43,15 +43,14 @@ public class ViagemDao {
         return conexao;
     }
 
-    public ArrayList<HashMap<String, Object>> listarViagem(Context context) {
+    public ArrayList<HashMap<String, Object>> listarViagem(Context context,Double valorLimite) {
 
         ArrayList<HashMap<String, Object>> viagemLista = new ArrayList<HashMap<String, Object>>();
 
 
-
         Cursor cursor = getConexao().query(viagem.TABELA, null, null, null, null, null, null);
 
-        cursor.moveToFirst();
+       // cursor.moveToFirst();
 
         while (cursor.moveToNext()){
 
@@ -73,10 +72,12 @@ public class ViagemDao {
 
             Double totalGasto = gastoDao.CalculaValorTotalGasto(getConexao(),cursor.getInt(cursor.getColumnIndex(viagem.ID)));
 
-            item.put("totalGasto","Total Gasro R$ "+ Formate.doubleParaMonetario(totalGasto));
+            item.put("totalGasto","Total Gasto R$ "+ Formate.doubleParaMonetario(totalGasto));
 
-            Double[] valores = new Double[]{cursor.getDouble(cursor.getColumnIndex(viagem.ORCAMENTO)),
-                    1500.0,totalGasto};
+            Double orcamento = cursor.getDouble(cursor.getColumnIndex(viagem.ORCAMENTO));
+            Double alerta = orcamento * valorLimite /100;
+
+            Double[] valores = new Double[]{orcamento,alerta,totalGasto};
 
             item.put("barraProgresso",valores);
 
@@ -93,7 +94,6 @@ public class ViagemDao {
 
         Cursor cursor = getConexao().rawQuery("Select * from viagem where _id = ?",new String[]{String.valueOf(id)});
 
-        cursor.moveToFirst();
 
         viagem.setId(cursor.getInt(cursor.getColumnIndex(viagem.ID)));
         viagem.setDestino(cursor.getString(cursor.getColumnIndex(viagem.DESTINO)));
@@ -147,8 +147,6 @@ public class ViagemDao {
         values.put(Viagem.DESTINO, viagem.getDestino());
         values.put(Viagem.ORCAMENTO, viagem.getOrcamento());
         values.put(Viagem.TIPO, viagem.getTipo());
-        values.put(Viagem.DATA_CHEGADA, new Date().getTime());
-        values.put(Viagem.DATA_PARTIDA,  new Date().getTime());
         values.put(Viagem.DATA_CHEGADA, viagem.getData_chegada().getTime());
         values.put(Viagem.DATA_PARTIDA, viagem.getData_partida().getTime());
         values.put(Viagem.QUANTIDADE_PESSOAS, viagem.getQuantidade_pessoas());

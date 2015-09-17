@@ -25,7 +25,10 @@ public class  Formate {
 
     public  static Double MonetarioParaDouble(String valor){
 
-        return Double.parseDouble(valor.replace(",","."));
+        String convert = valor.replace(",","");
+        convert.replace(".","");
+
+        return Double.parseDouble(convert);
     }
 
     public static String dataParaString(Date data){
@@ -35,9 +38,12 @@ public class  Formate {
     }
     public static Date stringParaData(String data){
         Date dataFormatada = null;
-        SimpleDateFormat format = new SimpleDateFormat("dd,MM,yyyy");
+       // DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+
         try {
-            dataFormatada = format.parse(data);
+            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+            dataFormatada = dateFormat.parse(data);
+
         } catch (ParseException e) {
             e.printStackTrace();
         }

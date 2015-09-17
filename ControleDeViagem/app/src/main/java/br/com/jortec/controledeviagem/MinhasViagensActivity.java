@@ -3,7 +3,9 @@ package br.com.jortec.controledeviagem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import br.com.jortec.controledeviagem.app.BarraNotificacoes;
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
 import br.com.jortec.controledeviagem.dominio.entidade.Gasto;
@@ -46,8 +49,13 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_minhas_viagens);
 
+        //Pegar as preferencias da viagem
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String  valor = preferences.getString("valor_limite", "-1");
+        Double valorLimite = Double.parseDouble(valor);
 
-       dao = new ViagemDao(this);
+
+         dao = new ViagemDao(this);
 
         listaViagens = (ListView) findViewById(R.id.listaViagens);
 
@@ -57,7 +65,7 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
          String [] de = {"destino","data","totalGasto","barraProgresso"};
          int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValorViagem, R.id.barraProgresso};
 
-         viagens =  dao.listarViagem(this);
+         viagens =  dao.listarViagem(this,valorLimite);
 
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this,viagens,R.layout.viagem_lists,de,para);
@@ -174,6 +182,11 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
                 progressoBar.setMax(valores[0].intValue());
                 progressoBar.setSecondaryProgress(valores[1].intValue());
                 progressoBar.setProgress(valores[2].intValue());
+
+
+                if(valores[2] >= valores[1]){
+                    BarraNotificacoes.criarNotificacao(view.getContext(), "Controle de Viagem", "Gastos ultrapassaram o valor limite");
+                }
 
                 return true;
             }

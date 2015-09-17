@@ -45,7 +45,6 @@ public class GastoDao {
     public static Double CalculaValorTotalGasto(SQLiteDatabase conexao, int id){
 
         Cursor cursor = conexao.rawQuery("Select sum(valor) from gasto where viagem_id = ?", new String[]{String.valueOf(id)});
-        cursor.moveToFirst();
 
         Double total = cursor.getDouble(0);
 
@@ -56,10 +55,8 @@ public class GastoDao {
     public ArrayList<HashMap<String,Object>> listarGasto(Context context,int viagem_id){
         Cursor cursor = getConexao().rawQuery("Select * from gasto where viagem_id = ?", new String[]{String.valueOf(viagem_id)});
 
-        cursor.moveToFirst();
 
         ArrayList<HashMap<String,Object>> listaGasto = new ArrayList<HashMap<String,Object>>();
-        int cont = 0;
 
         while (cursor.moveToNext()){
             HashMap<String,Object> item = new HashMap<String,Object>();
@@ -74,8 +71,6 @@ public class GastoDao {
             listaGasto.add(item);
 
         }
-        Toast.makeText(context, "Quantidade de objetos salvos "+cont, Toast.LENGTH_LONG).show();
-
 
         return  listaGasto;
     }
@@ -83,8 +78,7 @@ public class GastoDao {
     public Gasto pesquisarPorId(int id){
         Cursor cursor = getConexao().rawQuery("Select * from gasto where _id = ?",new String[]{String.valueOf(id)});
 
-        cursor.moveToFirst();
-
+        
         Gasto gastoSelecionado = new Gasto();
 
         gastoSelecionado.set_id(cursor.getInt(cursor.getColumnIndex(Gasto.ID)));
