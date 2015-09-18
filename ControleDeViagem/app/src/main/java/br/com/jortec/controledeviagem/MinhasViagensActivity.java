@@ -3,6 +3,9 @@ package br.com.jortec.controledeviagem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import br.com.jortec.controledeviagem.app.BarraNotificacoes;
+import br.com.jortec.controledeviagem.database.DatabaseSql;
+import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
+import br.com.jortec.controledeviagem.dominio.entidade.Gasto;
+import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
+
 public class MinhasViagensActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
                                                                         DialogInterface.OnClickListener {
 
@@ -27,24 +36,49 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
     private AlertDialog alertDialog;
     private AlertDialog confirmDialog;
 
+    public static String VIAGEM_ID = "viagem_id";
+
+    private ViagemDao dao;
+
+    int idViagem;
+    int viagemSelecionada;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_minhas_viagens);
 
+        //Pegar as preferencias da viagem
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String  valor = preferences.getString("valor_limite", "-1");
+        Double valorLimite = Double.parseDouble(valor);
+
+
+         dao = new ViagemDao(this);
+
         listaViagens = (ListView) findViewById(R.id.listaViagens);
 
-        String [] de = {"destino","data","valor","barraProgresso"};
-        int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
+       // String [] de = {"destino","data","total","barraProgresso"};
+       // int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
+
+         String [] de = {"destino","data","totalGasto","barraProgresso"};
+         int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValorViagem, R.id.barraProgresso};
+
+         viagens =  dao.listarViagem(this,valorLimite);
 
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listarViagem(),R.layout.viagem_lists,de,para);
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this,viagens,R.layout.viagem_lists,de,para);
         simpleAdapter.setViewBinder(new ViagemViewBinder());
 
         listaViagens.setAdapter(simpleAdapter);
         listaViagens.setOnItemClickListener(this);
         this.confirmDialog = criaDialogConfirmacao();
+
+
+
+
+
 
     }
 
@@ -69,31 +103,6 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
 
         return super.onOptionsItemSelected(item);
     }
-
-    //Popullar a minha lista
-     private List<HashMap<String, Object>> listarViagem(){
-
-        viagens = new ArrayList<HashMap<String,Object>>();
-
-        HashMap<String,Object> item = new HashMap<String,Object>();
-         item.put("destino","Fortaleza");
-         item.put("data","10/10/10");
-         item.put("valor", "300,00");
-         item.put("barraProgresso",  new Double[]{500.0,450.0,314.98});
-         viagens.add(item);
-
-        item = new HashMap<String, Object>();
-         item.put("destino", "Maceió");
-         item.put("data","10/10/10");
-         item.put("valor", "Gasto total R$ 25.834,67");
-         item.put("barraProgresso",  new Double[]{500.0,450.0,314.98});
-         viagens.add(item);
-
-
-
-        return viagens;
-    }
-
 
     private AlertDialog criaAlertDialog() {
         final CharSequence[] items = { getString(R.string.editar),
@@ -120,39 +129,43 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        idViagem  = (int) viagens.get(position).get("_id");
+
+        viagemSelecionada = position;
+
         this.alertDialog = criaAlertDialog();
         alertDialog.show();
-
-
-
-       /* HashMap<String, String> map = viagens.get(position);
-        String destino = (String) map.get("destino");
-        String mensagem = "Viagem selecionada: "+ destino;
-        Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, GastoListaActivity.class));*/
     }
 
 
     @Override
     public void onClick(DialogInterface dialog, int item) {
         switch (item) {
-            case 0:
-                startActivity(new Intent(this, CadastroViagemActivity.class));
+            case 0://Iniciar o cadastro de uma nova viagem
+                Intent itCadastro = new Intent(this, CadastroViagemActivity.class);
+                itCadastro.putExtra(Gasto.VIAGEM_ID, idViagem);
+                startActivity(itCadastro);
                 break;
-            case 1:
-                startActivity(new Intent(this, GastoViagemActivity.class));
+            case 1://Iniciar o novo gasto da viagem selecionada
+                Intent it = new Intent(this, GastoViagemActivity.class);
+                it.putExtra(Gasto.VIAGEM_ID, idViagem);
+                startActivity(it);
                 break;
-            case 2:
-                startActivity(new Intent(this, GastoListaActivity.class));
+            case 2://Lista gasstos das viagens selecionada
+                Intent itente = new Intent(this, GastoListaActivity.class);
+                itente.putExtra(VIAGEM_ID, idViagem);
+                startActivity(itente);
                 break;
-            case 3:
+            case 3://Chama o dialogo de confirmação
                 confirmDialog.show();
                 break;
             case DialogInterface.BUTTON_POSITIVE:
-                Toast.makeText(this,"Item removido", Toast.LENGTH_SHORT).show();
+                viagens.remove(viagemSelecionada);//remover da lista
+                dao.deletarViagem(this, idViagem);
+                listaViagens.invalidateViews();//destruir a lista
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
-                Toast.makeText(this,"Item cancelado", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
                 break;
         }
     }
@@ -169,6 +182,11 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
                 progressoBar.setMax(valores[0].intValue());
                 progressoBar.setSecondaryProgress(valores[1].intValue());
                 progressoBar.setProgress(valores[2].intValue());
+
+
+                if(valores[2] >= valores[1]){
+                    BarraNotificacoes.criarNotificacao(view.getContext(), "Controle de Viagem", "Gastos ultrapassaram o valor limite");
+                }
 
                 return true;
             }

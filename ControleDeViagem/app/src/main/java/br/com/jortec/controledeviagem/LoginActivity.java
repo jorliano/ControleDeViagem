@@ -1,5 +1,11 @@
 package br.com.jortec.controledeviagem;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +17,26 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+
+import java.io.IOException;
+
+import br.com.jortec.controledeviagem.dominio.util.Constantes;
+
+
+//import com.google.android.gms.common.api.GoogleApiClient;
+//import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+
 public class LoginActivity extends AppCompatActivity {
-    public final String MANTER_ME_CONECTADO = "manter_conectado";
+
     private EditText usuario ;
     private EditText senha;
     private CheckBox manterConectado;
+    private SharedPreferences preferences;
+    private GoogleAccountManager accountManager;
+    private Account conta;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +47,13 @@ public class LoginActivity extends AppCompatActivity {
         senha   = (EditText) findViewById(R.id.edtSenha);
         manterConectado =(CheckBox) findViewById(R.id.ckbConectado);
 
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        boolean conectado = sharedPreferences.getBoolean(MANTER_ME_CONECTADO,false);
+        preferences = getSharedPreferences(Constantes.PREFERENCIA,MODE_PRIVATE);
+        boolean conectado = preferences.getBoolean(Constantes.MANTER_CONECTADO,false);
+
+        accountManager = new GoogleAccountManager(this);
 
         if(conectado)
-            startActivity(new Intent(this,DashboardActivity.class));
+           solicitarAutorizacao();
 
     }
 
@@ -60,19 +83,96 @@ public class LoginActivity extends AppCompatActivity {
         String usuarioInformado = usuario.getText().toString();
         String senhaInformado = senha.getText().toString();
 
-        if("jorliano".equals(usuarioInformado) && "leandro".equals(senhaInformado)){
+        autentica(usuarioInformado,senhaInformado);
+    }
 
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean(MANTER_ME_CONECTADO,manterConectado.isChecked());
-            editor.commit();
+    public void iniciarDashboard(){
+        startActivity(new Intent(this, DashboardActivity.class));
+    }
 
-            startActivity(new Intent(this,DashboardActivity.class));
+    private void autentica(String nomeConta, String senha) {
+
+        conta = accountManager.getAccountByName(nomeConta);
+        if(conta == null){
+
+            Toast.makeText(this,R.string.conta_inexistente,Toast.LENGTH_SHORT).show();
+            return;
         }
-        else {
-            String msgErro = getString(R.string.erroAutenticacao);
-            Toast toast = Toast.makeText(this,msgErro,Toast.LENGTH_SHORT);
-            toast.show();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(AccountManager.KEY_ACCOUNT_NAME,nomeConta);
+        bundle.putString(AccountManager.KEY_PASSWORD, senha);
+
+        accountManager.getAccountManager().confirmCredentials(conta, bundle, this, new AutenticacaoCallback(), null);
+
+    }
+
+    public void solicitarAutorizacao(){
+
+        String tokenAcesso = preferences.getString(Constantes.TOKEN_ACESSO,null);
+        String nomeConta = preferences.getString(Constantes.NOME_CONTA,null);
+
+        //Invalida token de acesso
+        if(tokenAcesso != null){
+            accountManager.invalidateAuthToken(tokenAcesso);
+            conta = accountManager.getAccountByName(nomeConta);
+        }
+
+        accountManager.getAccountManager().getAuthToken(conta,Constantes.AUTH_TOKEN_TYPE,null,this,
+                new AutorizacaoCallback(),null);
+    }
+
+    //Retorno da credencial
+    private class AutenticacaoCallback implements AccountManagerCallback {
+
+        @Override
+        public void run(AccountManagerFuture future) {
+            try {
+                Bundle bundle = (Bundle) future.getResult();
+
+                //se validação for verdadeira
+                if (bundle.getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
+
+                    solicitarAutorizacao();
+                }
+            } catch (OperationCanceledException e) { // usuário cancelou a operação
+                e.printStackTrace();
+            } catch (AuthenticatorException e) { // possível falha no autenticador
+                e.printStackTrace();
+            } catch (IOException e) { // possível falha de comunicação
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
+    private class AutorizacaoCallback implements AccountManagerCallback{
+        @Override
+        public void run(AccountManagerFuture future) {
+            try {
+                Bundle bundle = (Bundle) future.getResult();
+                String nomeConta = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
+                String tokenAcesso = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+
+                gravarTokenAcesso(nomeConta, tokenAcesso);
+                iniciarDashboard();
+
+            } catch (OperationCanceledException e) {// usuário cancelou a operação
+                e.printStackTrace();
+            } catch (IOException e) { // possível falha de comunicação
+                e.printStackTrace();
+            } catch (AuthenticatorException e) {// possível falha no autenticador
+                e.printStackTrace();
+            }
+        }
+
+        public void gravarTokenAcesso(String nomeConta,String tokenAcesso){
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(Constantes.NOME_CONTA,nomeConta);
+            editor.putString(Constantes.TOKEN_ACESSO,tokenAcesso);
+            editor.putBoolean(Constantes.MANTER_CONECTADO, manterConectado.isChecked());
+            editor.commit();
         }
     }
 }
