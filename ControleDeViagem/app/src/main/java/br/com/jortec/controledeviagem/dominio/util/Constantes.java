@@ -15,5 +15,6 @@ public class Constantes {
     public static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/calendar";
     public static final String API_KEY = "AIzaSyCzPRz1BRLfJVZfDsvqV07pJ8nv3xqlLZM";
 
-
+   //==================Arquivo de Preferencia da Aplicação=============
+    public static final String PREFERENCIA = "preferencia";
 }

@@ -47,11 +47,13 @@ public class LoginActivity extends AppCompatActivity {
         senha   = (EditText) findViewById(R.id.edtSenha);
         manterConectado =(CheckBox) findViewById(R.id.ckbConectado);
 
-        preferences = getPreferences(MODE_PRIVATE);
+        preferences = getSharedPreferences(Constantes.PREFERENCIA,MODE_PRIVATE);
         boolean conectado = preferences.getBoolean(Constantes.MANTER_CONECTADO,false);
 
+        accountManager = new GoogleAccountManager(this);
+
         if(conectado)
-           iniciarDashboard();
+           solicitarAutorizacao();
 
     }
 
@@ -89,9 +91,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void autentica(String nomeConta, String senha) {
-        accountManager = new GoogleAccountManager(this);
-
-
 
         conta = accountManager.getAccountByName(nomeConta);
         if(conta == null){
@@ -109,6 +108,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void solicitarAutorizacao(){
+
+        String tokenAcesso = preferences.getString(Constantes.TOKEN_ACESSO,null);
+        String nomeConta = preferences.getString(Constantes.NOME_CONTA,null);
+
+        //Invalida token de acesso
+        if(tokenAcesso != null){
+            accountManager.invalidateAuthToken(tokenAcesso);
+            conta = accountManager.getAccountByName(nomeConta);
+        }
+
         accountManager.getAccountManager().getAuthToken(conta,Constantes.AUTH_TOKEN_TYPE,null,this,
                 new AutorizacaoCallback(),null);
     }
@@ -146,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
                 String nomeConta = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
                 String tokenAcesso = bundle.getString(AccountManager.KEY_AUTHTOKEN);
 
-                gravarTokenAcesso(nomeConta,tokenAcesso);
+                gravarTokenAcesso(nomeConta, tokenAcesso);
                 iniciarDashboard();
 
             } catch (OperationCanceledException e) {// usuário cancelou a operação

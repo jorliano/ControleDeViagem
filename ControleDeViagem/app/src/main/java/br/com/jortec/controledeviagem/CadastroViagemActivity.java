@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +33,9 @@ import java.util.zip.DataFormatException;
 
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
+import br.com.jortec.controledeviagem.dominio.Servico.CalendarioServico;
 import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
+import br.com.jortec.controledeviagem.dominio.util.Constantes;
 import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 public class CadastroViagemActivity extends AppCompatActivity implements View.OnClickListener{
@@ -50,6 +53,8 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
     ViagemDao dao;
     Viagem viagem;
+    CalendarioServico calendarioServico;
+    private SharedPreferences preferences;
 
 
     @Override
@@ -70,10 +75,13 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
         tipo = tipoSelecionado.getCheckedRadioButtonId();
 
+
+
         //Eventos dos componentes
         btnDataChegada.setOnClickListener(this);
         btnDataPartida.setOnClickListener(this);
         btnSalvar.setOnClickListener(this);
+        calendarioServico = criarCalendarioServico();
 
         //pega o id da viagem selecionada
         Bundle bundle = getIntent().getExtras();
@@ -88,6 +96,17 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
 
     }
+    public CalendarioServico criarCalendarioServico(){
+        preferences = getSharedPreferences(Constantes.PREFERENCIA,MODE_PRIVATE);
+        String nomeConta = preferences.getString(Constantes.NOME_CONTA, null);
+        String tokenAcesso = preferences.getString(Constantes.TOKEN_ACESSO,null);
+
+        Toast.makeText(this,"nome da conta: "+nomeConta,Toast.LENGTH_LONG).show();
+
+
+        return new CalendarioServico(nomeConta,tokenAcesso);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,8 +142,9 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
             case R.id.btnSalvarViagem:
                 if(id == 0) {
                     preencerDadosViagem();
-                    dao.salvarViagem(this,viagem);
-                    startActivity(new Intent(this,MinhasViagensActivity.class));
+                    dao.salvarViagem(this, viagem);
+                    new Task().execute(viagem);
+                    startActivity(new Intent(this, MinhasViagensActivity.class));
                 }else{
                     preencerDadosViagem();
                     dao.editarViagem(this, viagem, id);
@@ -183,6 +203,8 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
     }
 
+
+
     private class  SeleciionaDataPicker implements DatePickerDialog.OnDateSetListener{
         Button btnData;
 
@@ -200,6 +222,17 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
             String data = Formate.dataParaString(dataSelecionada);
 
             btnData.setText(data);
+        }
+    }
+
+    private class Task extends AsyncTask<Viagem, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Viagem... viagens) {
+            Viagem viagem = viagens[0];
+            calendarioServico.cirarEvento(viagem);
+
+            return null;
         }
     }
 }

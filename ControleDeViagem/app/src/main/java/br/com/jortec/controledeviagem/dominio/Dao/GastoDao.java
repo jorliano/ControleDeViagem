@@ -46,6 +46,7 @@ public class GastoDao {
 
         Cursor cursor = conexao.rawQuery("Select sum(valor) from gasto where viagem_id = ?", new String[]{String.valueOf(id)});
 
+        cursor.moveToFirst();
         Double total = cursor.getDouble(0);
 
         cursor.close();
@@ -78,7 +79,7 @@ public class GastoDao {
     public Gasto pesquisarPorId(int id){
         Cursor cursor = getConexao().rawQuery("Select * from gasto where _id = ?",new String[]{String.valueOf(id)});
 
-        
+
         Gasto gastoSelecionado = new Gasto();
 
         gastoSelecionado.set_id(cursor.getInt(cursor.getColumnIndex(Gasto.ID)));
