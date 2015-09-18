@@ -1,3 +1,4 @@
 # ControleDeViagem
 Controle de gastos de viagem
-Usando Android Studio
+Usando Android Studio,
+Api da Google (Calendar)
