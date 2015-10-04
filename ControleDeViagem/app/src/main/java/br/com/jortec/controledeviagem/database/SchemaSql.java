@@ -14,7 +14,8 @@ public class SchemaSql {
         sql.append("data_chegada date, ");
         sql.append("data_partida date, ");
         sql.append("orcamento double, ");
-        sql.append("quantidade_pessoas integer ");
+        sql.append("quantidade_pessoas integer, ");
+        sql.append("imagem varchar(200) ");
         sql.append(");");
 
         return sql.toString();

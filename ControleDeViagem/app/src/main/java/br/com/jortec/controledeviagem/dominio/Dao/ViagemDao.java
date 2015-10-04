@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
@@ -81,6 +82,8 @@ public class ViagemDao {
 
             item.put("barraProgresso",valores);
 
+            item.put(viagem.IMAGEM, cursor.getString(cursor.getColumnIndex(viagem.IMAGEM)));
+
             viagemLista.add(item);
 
         }
@@ -90,18 +93,19 @@ public class ViagemDao {
 
     }
     public Viagem pesquisarPorId(int id){
-        Viagem viagem = new Viagem();
+        viagem = new Viagem();
 
         Cursor cursor = getConexao().rawQuery("Select * from viagem where _id = ?",new String[]{String.valueOf(id)});
+        cursor.moveToFirst();
 
-
-        viagem.setId(cursor.getInt(cursor.getColumnIndex(viagem.ID)));
+        viagem.setId(id);
         viagem.setDestino(cursor.getString(cursor.getColumnIndex(viagem.DESTINO)));
         viagem.setOrcamento(cursor.getDouble(cursor.getColumnIndex(viagem.ORCAMENTO)));
         viagem.setTipo(cursor.getInt(cursor.getColumnIndex(viagem.TIPO)));
         viagem.setData_partida(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_PARTIDA))));
         viagem.setData_chegada(new Date(cursor.getLong(cursor.getColumnIndex(viagem.DATA_CHEGADA))));
         viagem.setQuantidade_pessoas(cursor.getInt(cursor.getColumnIndex(viagem.QUANTIDADE_PESSOAS)));
+        viagem.setImagem(cursor.getString(cursor.getColumnIndex(viagem.IMAGEM)));
 
 
         return viagem;
@@ -109,7 +113,7 @@ public class ViagemDao {
 
     public void salvarViagem(Context context ,Viagem viagem){
         try {
-            getConexao().insert(Viagem.TABELA, null, preencherDados(viagem));
+            getConexao().insertOrThrow(Viagem.TABELA, null, preencherDados(viagem));
             Toast.makeText(context, "Dados salvo com sucesso ", Toast.LENGTH_LONG).show();
         }
         catch (Exception ex){
@@ -119,7 +123,7 @@ public class ViagemDao {
     }
     public void editarViagem(Context context ,Viagem viagem, int id){
         try {
-            getConexao().update(Viagem.TABELA, preencherDados(viagem), "_id =?", new String[]{String.valueOf(viagem.getId())});
+            getConexao().update(Viagem.TABELA, preencherDados(viagem), "_id =?", new String[]{String.valueOf(id)});
             Toast.makeText(context, "Dados atualizado com sucesso ", Toast.LENGTH_LONG).show();
         }
         catch (Exception ex){
@@ -150,6 +154,7 @@ public class ViagemDao {
         values.put(Viagem.DATA_CHEGADA, viagem.getData_chegada().getTime());
         values.put(Viagem.DATA_PARTIDA, viagem.getData_partida().getTime());
         values.put(Viagem.QUANTIDADE_PESSOAS, viagem.getQuantidade_pessoas());
+        values.put(Viagem.IMAGEM, viagem.getImagem());
 
         return values;
     }

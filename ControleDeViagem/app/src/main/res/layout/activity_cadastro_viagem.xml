@@ -11,22 +11,12 @@
         android:layout_height="match_parent"
         android:stretchColumns="0,1,3">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:background="#015488">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/nova_viagem"
-                android:id="@+id/textView"
-                android:layout_gravity="center"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/viagem_cadastro_toolbar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:minHeight="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -123,10 +113,44 @@
                 android:layout_gravity="left|right" />
         </TableRow>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/criar_nova_viagem"
-            android:id="@+id/btnSalvarViagem" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </TableRow>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnFoto"
+                    android:layout_column="0"
+                    android:src="@android:drawable/ic_menu_camera" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edtUrl"
+                    android:layout_weight="1"
+                    android:enabled="true"
+                    android:editable="true" />
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/criar_nova_viagem"
+                android:id="@+id/btnSalvarViagem" />
+
+        </LinearLayout>
     </TableLayout>
 </ScrollView>

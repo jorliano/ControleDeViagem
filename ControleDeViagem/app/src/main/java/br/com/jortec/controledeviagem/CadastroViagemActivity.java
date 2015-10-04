@@ -6,22 +6,29 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.Format;
@@ -34,28 +41,35 @@ import java.util.zip.DataFormatException;
 import br.com.jortec.controledeviagem.database.DatabaseSql;
 import br.com.jortec.controledeviagem.dominio.Dao.ViagemDao;
 import br.com.jortec.controledeviagem.dominio.Servico.CalendarioServico;
+import br.com.jortec.controledeviagem.dominio.Servico.ImagemServico;
 import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
 import br.com.jortec.controledeviagem.dominio.util.Constantes;
 import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 public class CadastroViagemActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private Toolbar toolbar;
     private Button btnDataPartida;
     private Button btnDataChegada;
     private Button btnSalvar;
+    private ImageButton btnFoto;
     private EditText destino;
     private EditText orcamento;
     private EditText quantidadePessoas;
+    private EditText urlFoto;
     private RadioGroup tipoSelecionado;
     private int tipo;
     private int id = 0;
+    private String nomeImagem;
+
 
 
     ViagemDao dao;
     Viagem viagem;
     CalendarioServico calendarioServico;
     private SharedPreferences preferences;
-
+    private Uri uri;
+    public final int CAPITURA_IMAGEM = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +78,22 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
         dao = new ViagemDao(this);
 
+        //Toolbar
+        toolbar = (Toolbar) findViewById(R.id.viagem_cadastro_toolbar);
+        toolbar.setTitle("Viagens");
+        toolbar.setSubtitle("Cadastro");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
        //Associar valores do meu layout de viagens
         btnDataChegada = (Button) findViewById(R.id.btnDataChegada);
         btnDataPartida = (Button) findViewById(R.id.btnDataPartida);
         btnSalvar = (Button) findViewById(R.id.btnSalvarViagem);
+        btnFoto = (ImageButton) findViewById(R.id.btnFoto);
         destino = (EditText) findViewById(R.id.edtDestino);
         orcamento = (EditText) findViewById(R.id.edtOrcamento);
         quantidadePessoas = (EditText) findViewById(R.id.edtPessoas);
+        urlFoto = (EditText) findViewById(R.id.edtUrl);
         tipoSelecionado =(RadioGroup) findViewById(R.id.radioGoup);
 
         tipo = tipoSelecionado.getCheckedRadioButtonId();
@@ -81,11 +104,13 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         btnDataChegada.setOnClickListener(this);
         btnDataPartida.setOnClickListener(this);
         btnSalvar.setOnClickListener(this);
+        btnFoto.setOnClickListener(this);
         calendarioServico = criarCalendarioServico();
 
         //pega o id da viagem selecionada
         Bundle bundle = getIntent().getExtras();
         if(bundle != null && bundle.containsKey(MinhasViagensActivity.VIAGEM_ID)){
+            toolbar.setSubtitle("Editar");
             id = bundle.getInt(MinhasViagensActivity.VIAGEM_ID);
             carregarViagemSelecionada();
 
@@ -107,6 +132,23 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         return new CalendarioServico(nomeConta,tokenAcesso);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == CAPITURA_IMAGEM){
+            if(resultCode == RESULT_OK){
+                Toast.makeText(this,"Mostrar a imagem",Toast.LENGTH_SHORT);
+                adicionarGaleria();
+                urlFoto.setText(nomeImagem);
+
+            }
+            else{
+                Toast.makeText(this,"A imagem não foi capiturada ",Toast.LENGTH_SHORT);
+            }
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,11 +165,11 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == android.R.id.home) {
+            finish();
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
@@ -151,6 +193,9 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
                     startActivity(new Intent(this, MinhasViagensActivity.class));
                 }
                 break;
+            case R.id.btnFoto:
+                 capitura();
+                break;
         }
 
     }
@@ -173,6 +218,7 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
         viagem.setQuantidade_pessoas(Integer.parseInt(quantidadePessoas.getText().toString()));
         viagem.setData_partida(Formate.stringParaData(btnDataPartida.getText().toString()));
         viagem.setData_chegada(Formate.stringParaData(btnDataChegada.getText().toString()));
+        viagem.setImagem(urlFoto.getText().toString());
         if(tipo == R.id.rbtnLazer)
             viagem.setTipo(1);
         else
@@ -197,6 +243,8 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
             }else{
                 tipoSelecionado.check(R.id.rbtnNegocio);
             }
+
+            urlFoto.setText(viagem.getImagem());
 
         }
 
@@ -234,5 +282,26 @@ public class CadastroViagemActivity extends AppCompatActivity implements View.On
 
             return null;
         }
+    }
+
+    public void capitura(){
+        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        nomeImagem = diretorio.getPath()+"/"+System.currentTimeMillis()+".jpg";
+
+        uri = Uri.fromFile(new File(nomeImagem));
+
+        //Chamar a função da camera
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        startActivityForResult(intent,CAPITURA_IMAGEM);
+
+
+    }
+    public void adicionarGaleria(){
+
+        Intent i = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        i.setData(uri);
+        this.sendBroadcast(i);
     }
 }

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+     <color name="colorPrimary">#00BCD4</color>
+     <color name="colorPrimaryDark">#0097A7</color>
+     <color name="colorAccent">#009688</color>
+
      <color name="titulo">#015488</color>
      <color name="categoria_alimentacao">#9FC5F8</color>
      <color name="categoria_hospedagem">#6FA8DC</color>

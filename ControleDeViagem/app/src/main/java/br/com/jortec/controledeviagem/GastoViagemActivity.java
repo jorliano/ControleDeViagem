@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ import br.com.jortec.controledeviagem.dominio.util.Formate;
 
 public class GastoViagemActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private Toolbar toolbar;
     private Spinner spnTipoGasto;
     private EditText valor;
     private EditText descricao;
@@ -46,6 +48,13 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_gasto_viagem);
 
         dao = new GastoDao(this);
+
+        //Toolbar
+        toolbar = (Toolbar) findViewById(R.id.gasto_toolbar);
+        toolbar.setTitle("Gastos");
+        toolbar.setSubtitle("Cadastro");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         spnTipoGasto = (Spinner) findViewById(R.id.spnTipoGasto);
         valor = (EditText) findViewById(R.id.edtValor);
@@ -75,6 +84,7 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
         }
 
         if(bundle != null && bundle.containsKey(GastoListaActivity.ID_GASTO)){
+              toolbar.setSubtitle("Editar");
               id_gasto = bundle.getInt(GastoListaActivity.ID_GASTO);
               carregarGastoSelecionado();
         }
@@ -99,11 +109,11 @@ public class GastoViagemActivity extends AppCompatActivity implements View.OnCli
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == android.R.id.home) {
+            finish();
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override

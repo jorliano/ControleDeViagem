@@ -7,17 +7,12 @@
     tools:context="br.com.jortec.controledeviagem.DashboardActivity">
 
 
-    <TextView
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/login_toolbar"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/controle_gastos"
-        android:id="@+id/textView"
-        android:layout_gravity="center"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold" />
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary" />
 
     <RelativeLayout
         android:layout_width="match_parent"
