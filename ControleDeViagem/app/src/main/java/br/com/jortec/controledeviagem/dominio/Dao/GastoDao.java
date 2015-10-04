@@ -78,20 +78,20 @@ public class GastoDao {
 
     public Gasto pesquisarPorId(int id){
         Cursor cursor = getConexao().rawQuery("Select * from gasto where _id = ?",new String[]{String.valueOf(id)});
+        cursor.moveToFirst();
 
+        gasto = new Gasto();
 
-        Gasto gastoSelecionado = new Gasto();
-
-        gastoSelecionado.set_id(cursor.getInt(cursor.getColumnIndex(Gasto.ID)));
-        gastoSelecionado.setCategoria(cursor.getString(cursor.getColumnIndex(Gasto.CATEGORIA)));
-        gastoSelecionado.setDescricao(cursor.getString(cursor.getColumnIndex(Gasto.DESCRICAO)));
-        gastoSelecionado.setLocal(cursor.getString(cursor.getColumnIndex(Gasto.LOCAL)));
-        gastoSelecionado.setValor(cursor.getDouble(cursor.getColumnIndex(Gasto.VALOR)));
-        gastoSelecionado.setData(new Date(cursor.getLong(cursor.getColumnIndex(Gasto.DATA))));
-        gastoSelecionado.setViagem_id(cursor.getInt(cursor.getColumnIndex(Gasto.VIAGEM_ID)));
+        gasto.set_id(cursor.getInt(cursor.getColumnIndex(Gasto.ID)));
+        gasto.setCategoria(cursor.getString(cursor.getColumnIndex(Gasto.CATEGORIA)));
+        gasto.setDescricao(cursor.getString(cursor.getColumnIndex(Gasto.DESCRICAO)));
+        gasto.setLocal(cursor.getString(cursor.getColumnIndex(Gasto.LOCAL)));
+        gasto.setValor(cursor.getDouble(cursor.getColumnIndex(Gasto.VALOR)));
+        gasto.setData(new Date(cursor.getLong(cursor.getColumnIndex(Gasto.DATA))));
+        gasto.setViagem_id(cursor.getInt(cursor.getColumnIndex(Gasto.VIAGEM_ID)));
 
         cursor.close();
-        return  gastoSelecionado;
+        return  gasto;
     }
 
     public void salvarGasto(Context context, Gasto gasto){

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +31,7 @@ import br.com.jortec.controledeviagem.dominio.util.Constantes;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
     private EditText usuario ;
     private EditText senha;
     private CheckBox manterConectado;
@@ -42,6 +44,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        toolbar = (Toolbar) findViewById(R.id.login_toolbar);
+        toolbar.setTitle("Login");
+        setSupportActionBar(toolbar);
+
 
         usuario = (EditText) findViewById(R.id.edtUsuario);
         senha   = (EditText) findViewById(R.id.edtSenha);

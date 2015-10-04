@@ -16,6 +16,7 @@ public class Viagem {
     public static String QUANTIDADE_PESSOAS ="quantidade_pessoas";
     public static String DATA_CHEGADA ="data_chegada";
     public static String DATA_PARTIDA ="data_partida";
+    public static String IMAGEM ="imagem";
 
 
 
@@ -27,6 +28,7 @@ public class Viagem {
     private int quantidade_pessoas;
     private Date data_chegada;
     private Date data_partida;
+    private String imagem;
 
 
     public int getId() {
@@ -84,5 +86,14 @@ public class Viagem {
 
     public void setData_partida(Date data_partida) {
         this.data_partida = data_partida;
+    }
+
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }

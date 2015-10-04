@@ -5,13 +5,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -30,7 +33,7 @@ import br.com.jortec.controledeviagem.dominio.entidade.Viagem;
 
 public class MinhasViagensActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
                                                                         DialogInterface.OnClickListener {
-
+    private Toolbar toolbar;
     private ListView listaViagens;
     private ArrayList<HashMap<String,Object>> viagens;
     private AlertDialog alertDialog;
@@ -49,6 +52,13 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_minhas_viagens);
 
+        //Toolbar
+        toolbar = (Toolbar) findViewById(R.id.viagens_toolbar);
+        toolbar.setTitle("Minhas Viagens");
+        toolbar.setSubtitle("lista");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         //Pegar as preferencias da viagem
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String  valor = preferences.getString("valor_limite", "-1");
@@ -58,14 +68,14 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
          dao = new ViagemDao(this);
 
         listaViagens = (ListView) findViewById(R.id.listaViagens);
+        viagens =  dao.listarViagem(this,valorLimite);
 
-       // String [] de = {"destino","data","total","barraProgresso"};
-       // int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValor,R.id.barraProgresso};
 
-         String [] de = {"destino","data","totalGasto","barraProgresso"};
-         int [] para ={R.id.txtDestino, R.id.txtData, R.id.txtValorViagem, R.id.barraProgresso};
 
-         viagens =  dao.listarViagem(this,valorLimite);
+         String [] de = {"imagem","destino","data","totalGasto","barraProgresso"};
+         int [] para ={R.id.txtImagem,R.id.txtDestino, R.id.txtData, R.id.txtValorViagem, R.id.barraProgresso};
+
+
 
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this,viagens,R.layout.viagem_lists,de,para);
@@ -97,11 +107,11 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == android.R.id.home) {
+           finish();
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     private AlertDialog criaAlertDialog() {
@@ -184,13 +194,12 @@ public class MinhasViagensActivity extends AppCompatActivity implements AdapterV
                 progressoBar.setProgress(valores[2].intValue());
 
 
-                if(valores[2] >= valores[1]){
+                if(valores[2] > valores[1]){
                     BarraNotificacoes.criarNotificacao(view.getContext(), "Controle de Viagem", "Gastos ultrapassaram o valor limite");
                 }
 
-                return true;
+               return true;
             }
-
             return false;
         }
     }

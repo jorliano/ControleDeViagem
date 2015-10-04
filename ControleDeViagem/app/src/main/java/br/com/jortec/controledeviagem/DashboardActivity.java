@@ -3,6 +3,7 @@ package br.com.jortec.controledeviagem;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,11 +13,18 @@ import android.widget.Toast;
 import br.com.jortec.controledeviagem.app.BarraNotificacoes;
 
 public class DashboardActivity extends AppCompatActivity {
+   private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        toolbar = (Toolbar) findViewById(R.id.login_toolbar);
+        toolbar.setTitle("Sistema");
+        toolbar.setSubtitle("Escolha uma opção");
+        setSupportActionBar(toolbar);
+
 
     }
 
